@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Hydrogen Infrastructure Mapping & Optimization</title>
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar Panel -->
+        <div class="sidebar" id="sidebar">
+            <div class="header">
+                <h1><i class="fas fa-leaf"></i> H₂ Infrastructure</h1>
+                <p>Real-time Mapping & Analysis Platform</p>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="totalProjects">247</div>
+                    <div class="label">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="totalCapacity">1,250</div>
+                    <div class="label">MW Capacity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="activeProjects">89</div>
+                    <div class="label">Active Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="totalInvestment">₹12.4L Cr</div>
+                    <div class="label">Investment</div>
+                </div>
+            </div>
+
+            <!-- Infrastructure Layers Control -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-layer-group"></i> Infrastructure Layers
+                </div>
+                <div class="layer-controls">
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #4CAF50;"></div>
+                            <span>H₂ Production Plants</span>
+                        </div>
+                        <div class="toggle-switch active" data-layer="production"></div>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #2196F3;"></div>
+                            <span>Storage Facilities</span>
+                        </div>
+                        <div class="toggle-switch active" data-layer="storage"></div>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #FF9800;"></div>
+                            <span>Pipeline Network</span>
+                        </div>
+                        <div class="toggle-switch active" data-layer="pipeline"></div>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #9C27B0;"></div>
+                            <span>Distribution Hubs</span>
+                        </div>
+                        <div class="toggle-switch active" data-layer="distribution"></div>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #FFC107;"></div>
+                            <span>Renewable Sources</span>
+                        </div>
+                        <div class="toggle-switch active" data-layer="renewable"></div>
+                    </div>
+                    <div class="layer-item">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #00BCD4;"></div>
+                            <span>Environmental Data</span>
+                        </div>
+                        <div class="toggle-switch" data-layer="environmental"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-filter"></i> Filters
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Capacity Range (MW)</label>
+                    <input type="range" class="range-input" id="capacityRange" min="0" max="500" value="500">
+                    <div style="color: white; font-size: 12px; text-align: center;">0 - <span id="capacityValue">500</span> MW</div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Project Status</label>
+                    <select class="filter-input" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="operational">Operational</option>
+                        <option value="construction">Under Construction</option>
+                        <option value="planned">Planned</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Region</label>
+                    <select class="filter-input" id="regionFilter">
+                        <option value="all">All Regions</option>
+                        <option value="north-india">North India</option>
+                        <option value="south-india">South India</option>
+                        <option value="west-india">West India</option>
+                        <option value="east-india">East India</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Investment Calculator -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-calculator"></i> Investment Calculator
+                </div>
+                <div class="calculator">
+                    <div class="filter-group">
+                        <label class="filter-label">Plant Capacity (MW)</label>
+                        <input type="number" class="filter-input" id="calcCapacity" placeholder="Enter capacity" value="100">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Technology Type</label>
+                        <select class="filter-input" id="techType">
+                            <option value="pem">PEM Electrolysis</option>
+                            <option value="alkaline">Alkaline Electrolysis</option>
+                            <option value="soec">SOEC</option>
+                        </select>
+                    </div>
+                    <div class="calc-result" id="calcResult">
+                        Estimated Cost: ₹150Cr - ₹200Cr
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <button class="btn" onclick="runOptimization()">
+                <i class="fas fa-chart-line"></i> Run Site Optimization
+            </button>
+            <button class="btn btn-secondary" onclick="generateReport()">
+                <i class="fas fa-file-alt"></i> Generate Report
+            </button>
+            <button class="btn btn-tertiary" onclick="analyzeEnvironmental()">
+                <i class="fas fa-leaf"></i> Environmental Analysis
+            </button>
+
+            <!-- Advanced Features Buttons -->
+            <button class="btn btn-advanced" onclick="performClusterAnalysis()">
+                <i class="fas fa-project-diagram"></i> Cluster Analysis
+            </button>
+            <button class="btn btn-advanced" onclick="optimizeRoutes()">
+                <i class="fas fa-route"></i> Route Optimization
+            </button>
+            <button class="btn btn-advanced" onclick="performDemandAnalysis()">
+                <i class="fas fa-chart-area"></i> Demand Analysis
+            </button>
+            <button class="btn btn-advanced" onclick="optimizeInvestmentStrategy()">
+                <i class="fas fa-coins"></i> Investment Strategy
+            </button>
+            <button class="btn btn-advanced" onclick="exportData('json')">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <!-- Sidebar Toggle Button -->
+
+            <!-- Search Container -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search locations for site analysis..." class="search-input">
+                    <button onclick="clearSearch()" class="clear-search" id="clearBtn" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="searchSuggestions" class="search-suggestions"></div>
+            </div>
+
+            <!-- Environmental Analysis Panel -->
+            <div id="analysisPanel" class="analysis-panel">
+                <div class="analysis-header">
+                    <div class="analysis-title">
+                        <i class="fas fa-chart-area" style="color: #4CAF50; margin-right: 8px;"></i> Site Analysis
+                    </div>
+                    <button class="close-panel" onclick="closeAnalysisPanel()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="analysisContent">
+                    <div class="loading-indicator">
+                        <div class="spinner"></div>
+                        Loading environmental data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Element -->
+            <div id="map"></div>
+
+            <!-- Real-time Data Sources Indicator -->
+            <div class="data-source-indicator">
+                <div class="data-source-title">
+                    <i class="fas fa-satellite"></i> Data Sources
+                </div>
+                <div class="data-source-item">
+                    <span>NASA POWER (Solar)</span>
+                    <div class="data-status">
+                        <div class="status-dot status-online"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+                <div class="data-source-item">
+                    <span>SoilGrids (Soil)</span>
+                    <div class="data-status">
+                        <div class="status-dot status-online"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+                <div class="data-source-item">
+                    <span>WRIS (Water)</span>
+                    <div class="data-status">
+                        <div class="status-dot status-loading"></div>
+                        <span>Limited</span>
+                    </div>
+                </div>
+                <div class="data-source-item">
+                    <span>OpenRoute (Transport)</span>
+                    <div class="data-status">
+                        <div class="status-dot status-online"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Legend -->
+            <div class="legend">
+                <div class="legend-title">Infrastructure Legend</div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #4CAF50;"></div>
+                    <span>H₂ Production Plants</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #2196F3;"></div>
+                    <span>Storage Facilities</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #FF9800;"></div>
+                    <span>Pipeline Network</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #9C27B0;"></div>
+                    <span>Distribution Hubs</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #FFC107;"></div>
+                    <span>Renewable Sources</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker" style="background: #00BCD4;"></div>
+                    <span>Environmental Data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript Libraries -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>
